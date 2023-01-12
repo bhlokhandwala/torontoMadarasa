@@ -24,15 +24,20 @@ export default async function handler(
     const spreadsheetId = "1hX474XLot9Pw0cP2oLX_l8pmuJX_9Kzhkpq5iVhNOH8";
     const sheetName = "Attendance sheet";
 
-    const updatedValues = (values: []): any[][] => {
-      return values.map((r: any) => {
-        if (inputValues.includes(r[0])) {
-          responseMsg = "Attendance successfully marked";
-          return [r[0], r[1], r[2], r[3], "Present", new Date()];
-        } else {
-          return r;
-        }
-      });
+    const updatedValues = (values: any[][] | null | undefined): any => {
+      if (values === null || typeof values === "undefined") {
+        return values;
+      } else {
+        // Do something with values
+        return values.map((r: any) => {
+          if (inputValues.includes(r[0])) {
+            responseMsg = "Attendance successfully marked";
+            return [r[0], r[1], r[2], r[3], "Present", new Date()];
+          } else {
+            return r;
+          }
+        });
+      }
     };
 
     try {
