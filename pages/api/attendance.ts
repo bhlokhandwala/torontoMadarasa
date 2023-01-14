@@ -1,6 +1,7 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from "next";
 import { google } from "googleapis";
+import { DateTime } from "luxon";
 type Data = {
   success: boolean;
   apiResponse?: any;
@@ -48,7 +49,7 @@ export default async function handler(
               r[4],
               r[5],
               "Present",
-              todayTimestamp.toLocaleDateString("en-US", options),
+              DateTime.now().toFormat("tt"),
             ];
           } else {
             return r;
