@@ -39,7 +39,6 @@ export default async function handler(
               r[2],
               r[3],
               r[4],
-              r[5],
               "Present",
               DateTime.now().toFormat("tt"),
             ];
@@ -88,7 +87,7 @@ export default async function handler(
       const totalScanDayWise = (data: any) => {
         let scannedStudents: any[] = [];
         data?.data?.updatedData?.values.filter((row: any) => {
-          if (row[6] === "Present") {
+          if (row[4] === "Present") {
             scannedStudents.push(row);
           }
         });
