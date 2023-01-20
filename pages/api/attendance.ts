@@ -38,7 +38,17 @@ export default async function handler(
         return values.map((r: any) => {
           if (inputValues.includes(r[0])) {
             responseMsg = "Attendance successfully marked";
-            return [r[0], r[1], r[2], r[3], r[4], "Present", modifyDate()];
+            return [
+              r[0],
+              r[1],
+              r[2],
+              r[3],
+              r[4],
+              r[5],
+              r[6],
+              "Present",
+              modifyDate(),
+            ]; // TODO: Update Rows every week
           } else {
             return r;
           }
@@ -84,7 +94,8 @@ export default async function handler(
       const totalScanDayWise = (data: any) => {
         let scannedStudents: any[] = [];
         data?.data?.updatedData?.values.filter((row: any) => {
-          if (row[5] === "Present") {
+          if (row[7] === "Present") {
+            // TODO: Update Rows every week
             scannedStudents.push(row);
           }
         });
