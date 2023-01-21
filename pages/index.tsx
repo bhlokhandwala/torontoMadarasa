@@ -7,7 +7,7 @@ import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Container from "@mui/material/Container";
 
-type DataType = { [key: string]: string };
+type DataType = { [key: string]: any };
 
 export default function Home() {
   const [title, setTitle] = useState();
@@ -45,7 +45,8 @@ export default function Home() {
         ),
         {}
       );
-      setClassCountMsg(arr_map);
+
+      setClassCountMsg(Object.fromEntries(Object.entries(arr_map).sort()));
     }
   };
 
