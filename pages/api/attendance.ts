@@ -7,6 +7,7 @@ type Data = {
   apiResponse?: any;
   msg: any;
   totalScanDayWise: number;
+  scannedStudents: any;
 };
 
 export default async function handler(
@@ -96,17 +97,18 @@ export default async function handler(
         data?.data?.updatedData?.values.filter((row: any) => {
           if (row[7] === "Present") {
             // TODO: Update Rows every week
-            scannedStudents.push(row);
+            scannedStudents.push([row[3], row[7]]);
           }
         });
-        return scannedStudents.length;
+        return scannedStudents;
       };
 
       res.status(200).json({
         success: true,
         apiResponse: status ?? "",
         msg: responseMsg ?? "ITS not found",
-        totalScanDayWise: totalScanDayWise(status),
+        totalScanDayWise: totalScanDayWise(status).length,
+        scannedStudents: totalScanDayWise(status),
       });
     } catch (error: any) {
       console.error("error", error);

@@ -1,5 +1,4 @@
 import Head from "next/head";
-import { Inter } from "@next/font/google";
 import styles from "../styles/Home.module.css";
 import { useEffect, useState } from "react";
 import { QrReader } from "react-qr-reader";
@@ -8,12 +7,13 @@ import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Container from "@mui/material/Container";
 
-const inter = Inter({ subsets: ["latin"] });
+type DataType = { [key: string]: string };
 
 export default function Home() {
   const [title, setTitle] = useState();
   const [successMsg, setSuccessMsg] = useState("");
   const [countMsg, setCountMsg] = useState("0");
+  const [classCountMsg, setClassCountMsg] = useState<DataType>({});
   const [its, setIts] = useState("");
   const [qrCode, setQrCode] = useState("No result");
 
@@ -39,13 +39,14 @@ export default function Home() {
       setSuccessMsg(data.msg);
       setCountMsg(data.totalScanDayWise);
       setIts("");
+      const arr_map = data.scannedStudents.reduce(
+        (a: { [x: string]: any }, k: string | number) => (
+          (a[k] = (a[k] || 0) + 1), a
+        ),
+        {}
+      );
+      setClassCountMsg(arr_map);
     }
-  };
-
-  const resetScanner = () => {
-    setQrCode("No result");
-    setSuccessMsg("");
-    setIts("");
   };
 
   useEffect(() => {
@@ -86,9 +87,6 @@ export default function Home() {
           Mark Attendance
         </Button>
         <Typography variant="subtitle1" gutterBottom>
-          Total number of Student Scanned {countMsg}
-        </Typography>
-        <Typography variant="subtitle1" gutterBottom>
           {successMsg}
         </Typography>
         <div>
@@ -107,6 +105,17 @@ export default function Home() {
         </div>
         <Typography variant="subtitle1" gutterBottom>
           {qrCode}
+        </Typography>
+
+        {Object.keys(classCountMsg).map((keyName, i) => (
+          <li key={i}>
+            <span>
+              {keyName.slice(0, -8)} = {classCountMsg[keyName]}
+            </span>
+          </li>
+        ))}
+        <Typography variant="subtitle1" gutterBottom>
+          Total number of Student Scanned {countMsg}
         </Typography>
       </Container>
     </>
