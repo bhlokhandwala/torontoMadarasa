@@ -10,7 +10,10 @@ import Container from "@mui/material/Container";
 type DataType = { [key: string]: any };
 
 export default function Home() {
-  const [title, setTitle] = useState();
+  const [setting, setSetting] = useState({
+    title: "",
+    attendanceColumn: "",
+  });
   const [successMsg, setSuccessMsg] = useState("");
   const [countMsg, setCountMsg] = useState("0");
   const [classCountMsg, setClassCountMsg] = useState<DataType>({});
@@ -18,35 +21,44 @@ export default function Home() {
   const [qrCode, setQrCode] = useState("No result");
 
   const fetchTodos = async () => {
-    const response = await fetch("/api/title");
+    const response = await fetch("/api/settings");
     const data = await response.json();
-    setTitle(data.name);
+    setSetting({
+      title: data.data.values[0][1],
+      attendanceColumn: data.data.values[1][1],
+    });
   };
 
   const markAttendance = async (its: string) => {
     setSuccessMsg("Loading");
     const response = await fetch("/api/attendance", {
       method: "POST",
-      body: JSON.stringify(its),
+      body: JSON.stringify({
+        its: its,
+        attendanceColumn: setting.attendanceColumn,
+      }),
       headers: {
         "Content-Type": "application/json",
       },
     });
     const data = await response.json();
     console.log(data);
+    setSuccessMsg(data.msg);
+    setCountMsg(data.totalScanDayWise);
 
     if (data?.success) {
-      setSuccessMsg(data.msg);
-      setCountMsg(data.totalScanDayWise);
       setIts("");
-      const arr_map = data.scannedStudents.reduce(
-        (a: { [x: string]: any }, k: string | number) => (
-          (a[k] = (a[k] || 0) + 1), a
-        ),
-        {}
-      );
-
-      setClassCountMsg(Object.fromEntries(Object.entries(arr_map).sort()));
+      if (data?.scannedStudents) {
+        const arr_map = data?.scannedStudents.reduce(
+          (a: { [x: string]: any }, k: string | number) => (
+            (a[k] = (a[k] || 0) + 1), a
+          ),
+          {}
+        );
+        setClassCountMsg(Object.fromEntries(Object.entries(arr_map).sort()));
+      } else {
+        setClassCountMsg({});
+      }
     }
   };
 
@@ -63,14 +75,14 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>{title}</title>
-        <meta name="description" content={title} />
+        <title>{setting?.title}</title>
+        <meta name="description" content={setting?.title} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Container maxWidth="sm" sx={{ height: "100vh" }}>
         <Typography variant="h4" gutterBottom>
-          {title}
+          {setting?.title}
         </Typography>
         <TextField
           id="standard-basic"

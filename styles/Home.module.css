@@ -150,7 +150,7 @@
 }
 
 .qr_reader_layout {
-  width: 70%;
+  width: 100%;
 }
 
 /* Enable hover only on non-touch devices */

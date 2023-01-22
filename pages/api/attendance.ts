@@ -1,13 +1,13 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from "next";
 import { google } from "googleapis";
-import { DateTime } from "luxon";
+
 type Data = {
   success: boolean;
   apiResponse?: any;
   msg: any;
   totalScanDayWise: number;
-  scannedStudents: any;
+  scannedStudents?: any;
 };
 
 export default async function handler(
@@ -15,10 +15,22 @@ export default async function handler(
   res: NextApiResponse<Data>
 ) {
   if (req.method === "POST") {
-    console.log("req.body", req.body);
-
-    const inputValues = [req.body];
     let responseMsg;
+    let attendanceColumn: number;
+    if (!req.body.attendanceColumn) {
+      res.status(200).json({
+        success: true,
+        apiResponse: "",
+        msg: "Attendance column missing in sheet setting",
+        totalScanDayWise: 0,
+      });
+      return true;
+    } else {
+      attendanceColumn = parseInt(req.body.attendanceColumn) - 1;
+    }
+    console.log("req.body attendanceColumn ", attendanceColumn, req.body);
+
+    const inputValues = [req.body.its];
     const client_email =
       "torontomadrasaattendance@torontomadrasa.iam.gserviceaccount.com";
     const private_key =
@@ -35,21 +47,22 @@ export default async function handler(
       if (values === null || typeof values === "undefined") {
         return values;
       } else {
-        // Do something with values
         return values.map((r: any) => {
           if (inputValues.includes(r[0])) {
-            responseMsg = "Attendance successfully marked";
-            return [
-              r[0],
-              r[1],
-              r[2],
-              r[3],
-              r[4],
-              r[5],
-              r[6],
-              "Present",
-              modifyDate(),
-            ]; // TODO: Update Rows every week
+            if (r[attendanceColumn] === "Present") {
+              responseMsg = "Already Scanned";
+              return r;
+            } else {
+              responseMsg = "Attendance successfully marked";
+              let updateColumnValues = [];
+              for (let index = 0; index < attendanceColumn; index++) {
+                updateColumnValues.push(r[index]);
+              }
+              updateColumnValues.push("Present");
+              updateColumnValues.push(modifyDate());
+              console.log("updateColumnValues", updateColumnValues);
+              return updateColumnValues;
+            }
           } else {
             return r;
           }
@@ -95,7 +108,7 @@ export default async function handler(
       const totalScanDayWise = (data: any) => {
         let scannedStudents: any[] = [];
         data?.data?.updatedData?.values.filter((row: any) => {
-          if (row[7] === "Present") {
+          if (row[attendanceColumn] === "Present") {
             // TODO: Update Rows every week
             scannedStudents.push([row[3], row[7]]);
           }
