@@ -110,7 +110,7 @@ export default async function handler(
         data?.data?.updatedData?.values.filter((row: any) => {
           if (row[attendanceColumn] === "Present") {
             // TODO: Update Rows every week
-            scannedStudents.push([row[3], row[7]]);
+            scannedStudents.push([row[3], row[attendanceColumn]]);
           }
         });
         return scannedStudents;
